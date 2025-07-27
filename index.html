@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPOA Practice Exam</title>
+<style>
+:root{--gap:1rem;--radius:.5rem;--brand:#2563eb;--answered:#1d4ed8;--answered-bg:#eff6ff;--correct:#16a34a;--wrong:#dc2626;--shadow:0 1px 3px rgba(0,0,0,.08);}
+*{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;}
+body{background:#f9fafb;min-height:100vh;padding:1rem;display:flex;justify-content:center;}
+.wrapper{max-width:900px;width:100%;}
+h1{text-align:center;margin-bottom:var(--gap);font-size:2rem;font-weight:700;}
+/* top controls */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:calc(var(--gap)*1.5);}
+.controls label{font-weight:500;}
+select,button{padding:.4rem .6rem;font-size:.9rem;border:1px solid #d1d5db;border-radius:var(--radius);background:#fff;cursor:pointer;}
+#refreshBtn{background:var(--brand);color:#fff;border:none;}
+button:hover{opacity:.9;}
+/* results */
+#results{margin-bottom:var(--gap);padding:var(--gap);border:1px solid #d1d5db;border-radius:var(--radius);background:#f0fdf4;display:none;}
+#results h2{margin-bottom:.5rem;font-size:1.1rem;}
+#results ul{margin-left:1rem;list-style:disc;}
+/* questions */
+.question{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);padding:var(--gap);box-shadow:var(--shadow);margin-bottom:var(--gap);overflow-wrap:anywhere;}
+.question.answered{border-color:var(--answered);background:var(--answered-bg);}
+.question.correct{border-color:var(--correct);background:#f0fdf4;}
+.question.wrong {border-color:var(--wrong);background:#fef2f2;}
+.question p{margin-bottom:.9rem;}
+label{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:.7rem;cursor:pointer;}
+label input{margin-top:.3rem;}
+label .icon{margin-left:auto;font-size:1.1rem;line-height:1;}
+.comment{margin-top:.6rem;padding:.6rem;border-left:4px solid var(--brand);background:#f8fafc;font-style:italic;color:#374151;}
+/* footer */
+.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e5e7eb;box-shadow:0 -1px 3px rgba(0,0,0,.04);padding:.6rem 1rem;display:flex;justify-content:center;}
+#finishBtn{padding:.5rem 1rem;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;}
+#finishBtn:disabled{opacity:.5;cursor:not-allowed;}
+@media(max-width:600px){
+  body{padding:.75rem;}
+  .controls{gap:.4rem;}
+  button,select{font-size:.8rem;}
+}
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>CPOA Mock Exam</h1>
+
+    <!-- selector & refresh -->
+    <div class="controls">
+      <label for="qCountSel">Questions:</label>
+      <select id="qCountSel">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="30">30</option>
+        <option value="60" selected>60</option>
+      </select>
+
+      <label for="domainSel">Domain:</label>
+      <select id="domainSel"></select>
+
+      <button id="refreshBtn">Refresh</button>
+    </div>
+
+    <!-- results -->
+    <div id="results"></div>
+
+    <!-- questions go here -->
+    <div id="questions"></div>
+  </div>
+
+  <!-- footer -->
+  <div class="footer">
+    <button id="finishBtn">Finish exam</button>
+  </div>
+
+  <!-- external question bank -->
+  <script src="questions.js"></script>
+
+<script>
+/* ---------- guard ---------- */
+if(typeof QUESTION_BANK==='undefined'){
+  alert(`ERROR: questions.js not loaded.\nInclude <script src="questions.js"><\/script> before this file.`);
+  throw new Error('QUESTION_BANK missing');
+}
+
+/* ---------- helpers ---------- */
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+const $=id=>document.getElementById(id);
+
+/* ---------- DOM refs ---------- */
+const qWrap=$('questions'), results=$('results'), finish=$('finishBtn'),
+      qCount=$('qCountSel'), domSel=$('domainSel'), refresh=$('refreshBtn');
+
+/* ---------- populate domain dropdown ---------- */
+(function fillDomains(){
+  const domains=[...new Set(QUESTION_BANK.map(q=>q.domain||'Other'))].sort();
+  domSel.innerHTML=`<option value="">All domains</option>`+
+                   domains.map(d=>`<option value="${d}">${d}</option>`).join('');
+})();
+
+/* ---------- state ---------- */
+let current=[], graded=false;
+
+/* ---------- build exam ---------- */
+function buildExam(n){
+  let pool=[...QUESTION_BANK];
+  const chosen=domSel.value;
+  if(chosen) pool=pool.filter(q=>q.domain===chosen);
+  if(pool.length===0){alert('No questions in selected domain.');return;}
+
+  // reset UI
+  qWrap.innerHTML=''; results.style.display='none'; results.innerHTML='';
+  graded=false; finish.disabled=false;
+
+  current=shuffle(pool).slice(0,Math.min(n,pool.length));
+  current.forEach((q,i)=>renderQuestion(q,i+1));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderQuestion(q,num){
+  const card=document.createElement('div');
+  card.className='question'; card.dataset.id=q.id;
+  card.innerHTML=`<p><strong>${num}. </strong>${q.stem||q.text}</p>`;
+  const multi=q.multi||Array.isArray(q.correct)&&q.correct.length>1;
+
+  q.options.forEach((opt,idx)=>{
+    const lbl=document.createElement('label');
+    lbl.innerHTML=`<input type="${multi?'checkbox':'radio'}" name="q_${q.id}" value="${idx}"> ${opt}<span class="icon"></span>`;
+    lbl.addEventListener('change',()=>!graded&&card.classList.add('answered'));
+    card.appendChild(lbl);
+  });
+  qWrap.appendChild(card);
+}
+
+/* ---------- grading ---------- */
+function grade(){
+  if(graded)return; graded=true; finish.disabled=true;
+  const stats={};
+  current.forEach(q=>{
+    const card=qWrap.querySelector(`[data-id='${q.id}']`);
+    const inputs=[...card.querySelectorAll('input')];
+    const labels=[...card.querySelectorAll('label')];
+    const marked=inputs.reduce((a,i,k)=>{if(i.checked)a.push(k);return a;},[]);
+    let correct=q.correct??q.correctAnswers??[]; if(!Array.isArray(correct))correct=[correct];
+
+    const good=marked.length===correct.length&&marked.every(i=>correct.includes(i));
+    card.classList.remove('answered'); card.classList.add(good?'correct':'wrong');
+
+    labels.forEach((lbl,i)=>{
+      const ic=lbl.querySelector('.icon');
+      if(inputs[i].checked){
+        ic.textContent=correct.includes(i)?'✅':'❌';
+        ic.style.color=`var(--${correct.includes(i)?'correct':'wrong'})`;
+      }
+      inputs[i].disabled=true;
+    });
+
+    if(q.comment&&!card.querySelector('.comment')){
+      card.insertAdjacentHTML('beforeend',`<div class="comment">${q.comment}</div>`);
+    }
+
+    const d=q.domain||'Other'; if(!stats[d])stats[d]={t:0,c:0};
+    stats[d].t++; if(good)stats[d].c++;
+  });
+
+  const right=Object.values(stats).reduce((s,v)=>s+v.c,0), total=current.length;
+  let html=`<h2>Result: ${right}/${total} (${Math.round(100*right/total)}%)</h2><ul>`;
+  Object.entries(stats).sort().forEach(([d,s])=>{
+    html+=`<li>${d}: ${Math.round(100*s.c/s.t)}% (${s.c}/${s.t})</li>`;
+  });
+  results.innerHTML=html; results.style.display='block';
+}
+
+/* ---------- events ---------- */
+finish.addEventListener('click',grade);
+refresh.addEventListener('click',()=>buildExam(+qCount.value));
+
+/* ---------- init ---------- */
+document.addEventListener('DOMContentLoaded',()=>buildExam(+qCount.value));
+</script>
+</body>
+</html>
