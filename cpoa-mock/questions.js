@@ -1,6 +1,3 @@
-/***** Question Bank (150) *****/
-//  The distractors have been refined to remain plausible yet incorrect — no “favorite soda”‑style giveaways.
-//  Each item is mapped to a KA domain.
 const QUESTION_BANK=
 [
   {
