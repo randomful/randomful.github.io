@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unofficial IIBA CPOA Mock Exam</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .exam-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #bdc3c7;
+        }
+
+        /* Setup Screen Styles */
+        .setup-section {
+            padding: 40px;
+            display: block;
+        }
+
+        .setup-section.hidden {
+            display: none;
+        }
+
+        .setup-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .setup-group {
+            margin-bottom: 30px;
+        }
+
+        .setup-group h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .domain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .domain-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .domain-option:hover {
+            background: #e9ecef;
+        }
+
+        .domain-option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .domain-option input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .domain-option label {
+            cursor: pointer;
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .question-count-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .count-option {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .count-option:hover {
+            background: #e9ecef;
+        }
+
+        .count-option.selected {
+            background: #e67e22;
+            color: white;
+            border-color: #d35400;
+        }
+
+        .start-exam-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            padding: 15px 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .start-exam-btn:hover {
+            background: #229954;
+        }
+
+        .start-exam-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .domain-count {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-left: 10px;
+        }
+
+        /* Existing exam styles */
+        .question-section {
+            padding: 40px;
+            min-height: 400px;
+            background: white;
+            border: 2px dashed #ddd;
+            display: none;
+        }
+
+        .question-section.show {
+            display: block;
+        }
+
+        .question-header {
+            margin-bottom: 30px;
+        }
+
+        .question-domain {
+            font-size: 14px;
+            color: #7f8c8d;
+            background: #ecf0f1;
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .question-number {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .options-container {
+            margin-bottom: 40px;
+        }
+
+        .option {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option:hover {
+            background: #f0f0f0;
+        }
+
+        .option input {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .question-links {
+            background: #ecf0f1;
+            padding: 30px;
+            border-top: 2px solid #ddd;
+            display: none;
+        }
+
+        .question-links.show {
+            display: block;
+        }
+
+        .links-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
+        }
+
+        .question-link {
+            padding: 10px;
+            background: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: #333;
+        }
+
+        .question-link:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .question-link.current {
+            background: #2980b9;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .question-link.answered {
+            background: #f1c40f;
+            color: #333;
+            border-color: #f1c40f;
+        }
+
+        .question-link.correct {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .question-link.incorrect {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .results-button {
+            padding: 10px 20px;
+            background: #9b59b6;
+            color: white;
+            border: 2px solid #9b59b6;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 20px;
+            transition: all 0.3s;
+        }
+
+        .results-button:hover {
+            background: #8e44ad;
+            border-color: #8e44ad;
+        }
+
+        .results-button:disabled {
+            background: #bdc3c7;
+            color: #7f8c8d;
+            border-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-top: 2px solid #ddd;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .overall-score {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .overall-score h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+
+        .overall-score .score {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .domain-breakdown {
+            margin-bottom: 30px;
+        }
+
+        .domain-breakdown h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .domain-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .domain-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .domain-questions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .domain-question-link {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .domain-question-link:hover {
+            transform: scale(1.1);
+            border-color: #2c3e50;
+        }
+
+        .domain-question-link.correct {
+            background: #27ae60;
+            color: white;
+        }
+
+        .domain-question-link.incorrect {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .domain-name {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .domain-score {
+            color: #6c757d;
+        }
+
+        .retry-button {
+            background: #e67e22;
+            color: white;
+            border: 2px solid #e67e22;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.3s;
+        }
+
+        .retry-button:hover {
+            background: #d35400;
+            border-color: #d35400;
+        }
+
+        .exam-completed {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .exam-completed .option {
+            cursor: not-allowed;
+        }
+
+        .explanation-box {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        .explanation-title {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .explanation-text {
+            color: #34495e;
+            line-height: 1.5;
+        }
+
+        .correct-answer {
+            background: #d5f4e6;
+            border-left: 4px solid #27ae60;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .correct-answer-title {
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+
+        .wireframe-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 5px;
+            font-style: italic;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="wireframe-note">
+        🎓 <strong>Unofficial IIBA CPOA Mock Exam:</strong> Practice exam for the Certified Product Owner - Agile (CPOA) certification. Questions are domain-distributed and shuffled for realistic exam experience.
+    </div>
+
+    <div class="exam-container">
+        <div class="header">
+            <h1>Unofficial IIBA CPOA Mock Exam</h1>
+            <p>Certified Product Owner - Agile Practice Test</p>
+        </div>
+
+        <!-- Setup Section -->
+        <div class="setup-section" id="setupSection">
+            <div class="setup-title">📚 Customize Your Practice Exam</div>
+            
+            <div class="setup-group">
+                <h3>Select Knowledge Areas (Domains):</h3>
+                <div class="domain-grid" id="domainGrid">
+                    <!-- Domains will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <h3>Number of Questions:</h3>
+                <div class="question-count-options">
+                    <div class="count-option" data-count="10">10</div>
+                    <div class="count-option" data-count="30">30</div>
+                    <div class="count-option" data-count="45">45</div>
+                    <div class="count-option" data-count="60">60</div>
+                </div>
+            </div>
+
+            <button class="start-exam-btn" id="startExamBtn" disabled>Start Practice Exam</button>
+        </div>
+
+        <!-- Question Section -->
+        <div class="question-section" id="questionSection">
+            <div class="question-header">
+                <div class="question-domain" id="questionDomain">Domain</div>
+                <div class="question-number" id="questionNumber">Question 1 of 10</div>
+                <div class="question-text" id="questionText">Question text will appear here...</div>
+            </div>
+
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="nav-btn" id="backBtn" onclick="navigateQuestion(-1)">← Back</button>
+                <button class="nav-btn" id="nextBtn">Next →</button>
+            </div>
+
+            <div class="explanation-box" id="explanationBox">
+                <div class="explanation-title">💡 Explanation</div>
+                <div class="correct-answer">
+                    <div class="correct-answer-title">Correct Answer(s):</div>
+                    <div id="correctAnswerText"></div>
+                </div>
+                <div class="explanation-text" id="explanationText"></div>
+            </div>
+        </div>
+
+        <div class="question-links" id="questionLinks">
+            <div class="links-title">
+                Quick Navigation:
+                <button class="results-button" id="resultsBtn" onclick="toggleResults()" disabled>Results</button>
+            </div>
+            <div class="links-container" id="linksContainer">
+                <!-- Question links will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-title">📊 Practice Exam Results</div>
+            <div class="overall-score">
+                <h3>Overall Score</h3>
+                <div class="score" id="overallScore">0/0</div>
+                <div id="percentageScore">0%</div>
+            </div>
+            <div class="domain-breakdown">
+                <h4>📈 Performance by Knowledge Area</h4>
+                <div id="domainBreakdown">
+                    <!-- Domain scores will be populated by JavaScript -->
+                </div>
+            </div>
+            <button class="retry-button" onclick="retryExam()">🔄 New Practice Exam</button>
+        </div>
+    </div>
+
+    <script>
+        // Extended CSV Data Model for Questions
+        const csvData = `Apply foundational concepts;A stakeholder pushes for a feature that adds little measurable value but is highly visible. What should guide your decision?;SINGLE;Prioritize visibility to please stakeholders;Defer it until higher-value items are delivered;Add it immediately to the backlog top;Assign it to a future release without review;2;"Guide to POA" states prioritization should be based on value delivery, not visibility alone.
+Apply foundational concepts;Which actions align with a value-driven mindset?;MULTI;Validating assumptions early;Delivering increments frequently;Focusing solely on cost reduction;Measuring success against outcomes;1,2,4;"Guide to POA" promotes early validation, frequent delivery, and outcome-based measurement; cost-only focus is not enough.
+Apply foundational concepts;Your product vision is unclear to the team. Which approach supports clarity?;SINGLE;Create a roadmap aligned with strategic goals;Expand the backlog with all stakeholder requests;Leave vision definition to marketing;Focus on technical tasks first;1;"Guide to POA" recommends using artifacts like a roadmap to align the team on vision.
+Apply foundational concepts;POA promotes integrating business analysis with product ownership to achieve what outcome?;SINGLE;Higher code coverage;Continuous delivery of stakeholder value;Shorter daily standups;More backlog items completed;2;"Guide to POA" defines POA's purpose as delivering stakeholder value continuously.
+Apply foundational concepts;What differentiates POA from traditional business analysis?;MULTI;Focus on value-based prioritization;Direct backlog ownership;Exclusively documenting requirements;Continuous stakeholder engagement;1,2,4;"Guide to POA" positions POA with backlog ownership, value focus, and ongoing engagement; pure documentation focus is not the goal.
+Apply foundational concepts;A Product Owner struggles with competing stakeholder demands. Which principle helps?;SINGLE;Cultivating customer intimacy;Engaging the whole team;Obsessing about value;Delivering often;3;"Guide to POA" highlights that value focus enables prioritization when demands conflict.
+Apply foundational concepts;In POA, which factor is most critical when evaluating product decisions?;SINGLE;Ease of development;Estimated delivery date;Potential value;Personal preference of the PO;3;"Guide to POA" stresses potential value as the key decision driver.
+Apply foundational concepts;Which POA technique helps visualize work against value delivery over time?;SINGLE;Impact Mapping;Story Mapping;Value Stream Mapping;Retrospectives;3;"Guide to POA" describes Value Stream Mapping for analyzing value delivery flow.
+Apply foundational concepts;A team delivers features quickly, but customer satisfaction declines. Which concept is being missed?;SINGLE;Stakeholder analysis;Value focus;Sprint planning efficiency;Definition of done;2;"Guide to POA" notes that speed without value alignment can harm satisfaction.
+Apply foundational concepts;POA encourages backlog refinement as a means to:;MULTI;Maintain focus on value;Ensure shared understanding;Avoid technical debt;Reduce meeting time;1,2;"Guide to POA" links backlog refinement to value focus and understanding; technical debt avoidance is indirect.
+Apply foundational concepts;Which best illustrates applying foundational concepts?;SINGLE;Using velocity as the sole success metric;Delivering incremental value aligned with strategy;Implementing all stakeholder requests in sequence;Completing backlog faster than planned;2;"Guide to POA" defines foundational application as aligning delivery with strategy and value.
+Apply foundational concepts;What is the main reason to involve stakeholders early?;SINGLE;Gather complete requirements;Validate direction and assumptions;Document all features upfront;Avoid changing scope later;2;"Guide to POA" stresses early validation to reduce risk and confirm alignment.
+Apply foundational concepts;Which approaches align with POA's integration of BA and PO roles?;MULTI;Prioritizing based on value;Maintaining a shared product vision;Acting as sole developer;Engaging in collaborative refinement;1,2,4;"Guide to POA" shows BA+PO integration through value focus, vision alignment, and collaboration.
+Apply foundational concepts;A team debates whether to add an innovative feature with uncertain ROI. What should guide the PO?;SINGLE;Customer value hypothesis;Competitor feature list;Ease of coding;Available budget;1;"Guide to POA" recommends testing a value hypothesis before committing resources.
+Apply foundational concepts;When assessing backlog items, which metric aligns most with POA principles?;SINGLE;Number of user stories completed;Potential business outcomes;Hours spent coding;Percentage of defects fixed;2;"Guide to POA" focuses on outcomes over outputs.
+Apply foundational concepts;Which of these is NOT a foundational concept of POA?;SINGLE;Value-driven prioritization;Engagement of the whole team;Customer empathy;Exclusive focus on internal KPIs;4;"Guide to POA" includes value, engagement, empathy but warns against focusing solely on internal KPIs.
+Apply foundational concepts;Your team has a backlog full of low-value tasks. What's the first corrective action?;SINGLE;Refine backlog against value criteria;Increase delivery speed;Add more developers;Reassign tasks to QA;1;"Guide to POA" suggests re-aligning backlog with value criteria.
+Apply foundational concepts;Which scenario best demonstrates POA's focus on outcomes?;SINGLE;Delivering 10 new features in a release;Improving customer retention by 15%;Completing all planned sprints;Reducing backlog size;2;"Guide to POA" describes outcomes as measurable impacts like retention.
+Apply foundational concepts;Which techniques help clarify stakeholder needs?;MULTI;Personas;Code review;Impact mapping;Journey mapping;1,3,4;"Guide to POA" recommends personas, impact mapping, and journey mapping; code review is unrelated.
+Apply foundational concepts;What is a common risk when foundational concepts are ignored?;SINGLE;Faster releases;Misaligned product outcomes;Increased value delivery;Higher customer satisfaction;2;"Guide to POA" warns that ignoring concepts leads to misalignment.
+Apply foundational concepts;In POA, why is product vision critical?;SINGLE;It reduces backlog size;It aligns work with strategy and value goals;It prevents scope changes;It avoids technical debt;2;"Guide to POA" notes vision provides alignment with strategy and value.
+Apply foundational concepts;When should backlog items be reprioritized?;SINGLE;Only at sprint planning;When value assumptions change;Never;When developers request it;2;"Guide to POA" says reprioritize when value assumptions change.
+Apply foundational concepts;Which action shows collaborative mindset?;SINGLE;Involving devs in backlog prioritization;PO deciding priorities alone;Stakeholders sending requests without discussion;Assigning tasks by role hierarchy;1;"Guide to POA" promotes whole-team involvement.
+Apply foundational concepts;POA treats value as:;SINGLE;A fixed financial metric;A multidimensional measure including outcomes;The number of features released;Customer acquisition rate only;2;"Guide to POA" defines value as multidimensional.
+Apply foundational concepts;What is the main link between POA and agile delivery?;SINGLE;POA replaces agile ceremonies;POA optimizes value delivery within agile frameworks;POA eliminates need for sprints;POA focuses only on governance;2;"Guide to POA" complements agile with value focus.
+Apply foundational concepts;How does POA recommend validating assumptions?;MULTI;Experimentation;Prototyping;Stakeholder surveys;Ignoring outliers;1,2,3;"Guide to POA" promotes experiments, prototypes, and feedback.
+Apply foundational concepts;Which approach is best when stakeholders have conflicting priorities?;SINGLE;Decide based on the highest ROI;Build both features immediately;Ignore both requests;Decide based on technical simplicity;1;"Guide to POA" promotes ROI and value as deciding factors.
+Apply foundational concepts;A PO focuses on shipping features faster without measuring impact. What concept is missing?;SINGLE;Outcome-based thinking;Stakeholder mapping;Product vision;Definition of done;1;"Guide to POA" emphasizes outcomes over output.
+Apply foundational concepts;Which tool helps link business objectives to deliverables?;SINGLE;Impact Mapping;Code Review;Daily Standup;Bug Tracker;1;"Guide to POA" shows impact mapping connects objectives to work.
+Apply foundational concepts;When applying foundational concepts, decision-making should be based on:;SINGLE;Personal experience of the PO;Organizational goals and value;Previous sprint results;Available team capacity;2;"Guide to POA" says decisions align with goals and value.
+Apply foundational concepts;Which practices reduce risk of delivering low-value work?;MULTI;Frequent stakeholder feedback;Outcome measurement;Prioritization by loudest voice;Incremental delivery;1,2,4;"Guide to POA" promotes feedback, outcomes, and increments.
+Apply foundational concepts;The PO insists on a feature due to personal preference. What's the right response?;SINGLE;Challenge it using value metrics;Build it to maintain harmony;Delay discussion;Defer to next quarter automatically;1;"Guide to POA" advises value-based challenge.
+Apply foundational concepts;Why is engaging the whole team beneficial?;SINGLE;It spreads accountability and improves value decisions;It reduces PO's influence;It speeds coding;It avoids conflict;1;"Guide to POA" says shared accountability aids value alignment.
+Apply foundational concepts;What's the role of metrics in foundational concepts?;SINGLE;Track only delivery speed;Measure progress toward outcomes;Count completed stories;Identify code quality issues only;2;"Guide to POA" recommends metrics tied to outcomes.
+Apply foundational concepts;Which technique visualizes the relationship between user goals and system features?;SINGLE;User Story Mapping;Code Review;Sprint Retrospective;Kanban WIP limits;1;"Guide to POA" uses story mapping for goals-to-features view.
+Apply foundational concepts;When value is hard to quantify, what should PO do?;SINGLE;Use qualitative indicators;Ignore value;Choose based on technical ease;Ask devs to decide;1;"Guide to POA" supports qualitative proxies for value.
+Apply foundational concepts;Which of these demonstrates alignment to business goals?;SINGLE;Prioritizing features that directly support strategic objectives;Completing backlog from top to bottom;Implementing features requested by one customer;Delivering fastest items first;1;"Guide to POA" prioritizes alignment with strategy.
+Apply foundational concepts;Why is continuous refinement key in POA?;SINGLE;It keeps backlog aligned with changing value;It avoids backlog changes;It prevents dev feedback;It speeds releases;1;"Guide to POA" notes refinement keeps value alignment.
+Apply foundational concepts;Which mindset helps adapt to change?;SINGLE;Value-driven flexibility;Rigid adherence to plan;Ignoring new data;Focusing only on scope;1;"Guide to POA" promotes flexibility guided by value.
+Apply foundational concepts;What is the recommended approach to defining "done" in POA?;SINGLE;Include value verification in definition;Limit it to code completion;Follow dev preference;Base it on time spent;1;"Guide to POA" advises including value verification.
+Apply foundational concepts;How should a PO respond to market shifts?;SINGLE;Reassess and reprioritize backlog items;Continue current plan;Freeze backlog;Focus on internal KPIs;1;"Guide to POA" stresses adaptability to changing market.
+Apply foundational concepts;Which stakeholder engagement method supports foundational concepts?;SINGLE;Collaborative workshops;Email updates only;Annual review;One-on-one with PO only;1;"Guide to POA" favors collaborative engagement.
+Apply foundational concepts;Why is backlog ownership essential?;SINGLE;Ensures value-driven prioritization;Keeps PO busy;Reduces dev responsibility;Controls scope creep;1;"Guide to POA" defines backlog ownership as value control.
+Apply foundational concepts;What's a pitfall of focusing solely on outputs?;SINGLE;Ignoring actual value delivered;Faster sprint completion;More features shipped;Lower defect rates;1;"Guide to POA" warns outputs without value harm outcomes.
+Apply foundational concepts;Which artifact connects vision to delivery?;SINGLE;Product roadmap;Code repository;Burndown chart;Defect log;1;"Guide to POA" uses roadmaps for vision-to-delivery link.
+Apply foundational concepts;A PO wants to approve all backlog changes alone. What's missing?;SINGLE;Team collaboration;PO authority;Backlog size control;Time management;1;"Guide to POA" says backlog is managed collaboratively.
+Apply foundational concepts;Which concept underpins prioritization decisions?;SINGLE;Potential value;Historical effort;Team preference;Random selection;1;"Guide to POA" defines value as prioritization basis.
+Apply foundational concepts;How does POA define success?;SINGLE;Achievement of desired outcomes;Completing planned scope;Delivering fastest;Reducing team meetings;1;"Guide to POA" defines success as achieving outcomes.
+Apply foundational concepts;Why use personas in POA?;SINGLE;To understand user needs;To track defects;To write technical tasks;To manage sprints;1;"Guide to POA" uses personas to clarify needs.
+Cultivate customer intimacy;Why is cultivating customer intimacy critical in POA?;SINGLE;It ensures all features are delivered on time;It aligns product decisions with real customer needs;It reduces backlog size;It eliminates need for user testing;2;"Guide to POA" notes customer intimacy ensures decisions are based on true needs and context.
+Cultivate customer intimacy;Which actions demonstrate building strong customer relationships?;MULTI;Active listening in interviews;Ignoring feedback from smaller customer segments;Shadowing users in their work environment;Prioritizing value over personal bias;1,3,4;"Guide to POA" lists active listening, observation, and unbiased value focus as core practices.
